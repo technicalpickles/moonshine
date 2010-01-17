@@ -11,13 +11,14 @@ after 'deploy:restart', 'deploy:cleanup'
 #load the moonshine configuration into
 require 'yaml'
 begin
-  hash = YAML.load_file(File.join((ENV['RAILS_ROOT'] || Dir.pwd), 'config', 'moonshine.yml'))
+  hash = YAML::load(ERB.new(IO.read(File.join(ENV['RAILS_ROOT'] || Dir.pwd, 'config', 'moonshine.yml'))).result)
   hash.each do |key, value|
     set(key.to_sym, value)
   end
 rescue Exception
   puts "To use Capistrano with Moonshine, please run 'ruby script/generate moonshine',"
   puts "edit config/moonshine.yml, then re-run capistrano."
+  raise
   exit(1)
 end
 
@@ -31,6 +32,7 @@ namespace :moonshine do
   DESC
   task :bootstrap do
     ruby.install
+    bundler.install
     vcs.install
     moonshine.setup_directories
     shared_config.upload
@@ -324,6 +326,12 @@ namespace :ruby do
     sudo "gem install rake --no-rdoc --no-ri"
     sudo "gem install puppet -v 0.24.8 --no-rdoc --no-ri"
     sudo "gem install shadow_puppet --no-rdoc --no-ri"
+  end
+end
+
+namespace :bundler do
+  task :install do
+    sudo "gem install bundler --no-rdoc --no-ri"
   end
 end
 
