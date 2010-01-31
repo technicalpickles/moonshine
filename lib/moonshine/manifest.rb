@@ -130,7 +130,7 @@ class Moonshine::Manifest < ShadowPuppet::Manifest
     else
       raise LoadError, "Can't find template #{pathname}"
     end
-    ERB.new(template_contents).result(b)
+    ERB.new(template_contents, nil, '>').result(b)
   end
 
   # config/moonshine.yml
