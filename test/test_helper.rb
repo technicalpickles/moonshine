@@ -34,5 +34,26 @@ Test::Unit::TestCase.class_eval do
     $here.join('generator_rails_root')
   end
 
+  def assert_manifest_file_exists(manifest, path)
+    message = "manifest (#{manifest.files.keys.join(', ')}) files does not contain #{path}"
+    assert_block message do
+      manifest.files.has_key?(path.to_s)
+    end
+  end
+
+  def assert_apache_directive(contents, directive, value)
+    # Make sure directive is there first
+    assert_match directive, contents
+    assert_block "Wasn't able to find a value for <#{directive}>" do
+      if contents =~ /^\s*#{directive}\s+(\w+)[^#\n]*/
+        assert_block "Expected <#{value}> for <#{directive}>, but got <#{$1}>" do
+          $1 == value
+        end
+        true
+      else
+        false
+      end
+    end
+  end
 
 end

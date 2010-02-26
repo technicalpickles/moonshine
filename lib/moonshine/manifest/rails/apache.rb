@@ -13,7 +13,12 @@ module Moonshine::Manifest::Rails::Apache
       a2enmod('ssl')
     end
 
-    configure(:apache => {})
+    configure :apache => {}
+    breakpoint
+    if configuration[:apache][:keep_alive].blank?
+      configure(:apache => {:keep_alive => 'Off'})
+    end
+
 
     if configuration[:apache][:users]
       htpasswd = configuration[:apache][:htpasswd] || "#{configuration[:deploy_to]}/shared/config/htpasswd"
