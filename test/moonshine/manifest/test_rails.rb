@@ -130,6 +130,21 @@ class Moonshine::Manifest::RailsTest < Test::Unit::TestCase
     assert_equal @manifest.package('apache2-mpm-worker').to_s, apache.require.to_s
   end
 
+  def assert_manifest_file_exists(manifest, path)
+    message = "manifest (#{manifest.files.keys.join(', ')}) files does not contain #{path}"
+    assert_block message do
+      manifest.files.has_key?(path.to_s)
+    end
+  end
+
+  def test_disable_keepalive_by_default
+    @manifest.apache_server
+
+    assert_manifest_file_exists @manifest, '/etc/apache2/apache2.conf'
+
+    assert_match /KeepAlive Off/, @manifest.files['/etc/apache2/apache2.conf'].content
+  end
+
   def test_enables_mod_ssl_if_ssl
     @manifest.configure(:ssl => {
       :certificate_file => 'cert_file',
