@@ -1,4 +1,14 @@
 module Moonshine::Manifest::Rails::Apache
+  def self.included(manifest)
+    manifest.configure :apache => {
+      :keep_alive => 'Off',
+      :max_keep_alive_requests => 100,
+      :keep_alive_timeout => 15,
+      :max_clients => 150,
+      :server_limit => 16,
+      :timeout => 300
+    }
+  end
 
   # Installs Apache 2.2 and enables mod_rewrite and mod_status. Enables mod_ssl
   # if <tt>configuration[:ssl]</tt> is present
@@ -12,13 +22,6 @@ module Moonshine::Manifest::Rails::Apache
       a2enmod('headers')
       a2enmod('ssl')
     end
-
-    configure :apache => {}
-    breakpoint
-    if configuration[:apache][:keep_alive].blank?
-      configure(:apache => {:keep_alive => 'Off'})
-    end
-
 
     if configuration[:apache][:users]
       htpasswd = configuration[:apache][:htpasswd] || "#{configuration[:deploy_to]}/shared/config/htpasswd"

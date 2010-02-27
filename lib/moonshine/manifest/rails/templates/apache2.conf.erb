@@ -68,7 +68,7 @@ PidFile ${APACHE_PID_FILE}
 #
 # Timeout: The number of seconds before receives and sends time out.
 #
-Timeout 300#TODO
+Timeout <%= configuration[:apache][:timeout] %>
 
 #
 # KeepAlive: Whether or not to allow persistent connections (more than
@@ -81,13 +81,13 @@ KeepAlive <%= configuration[:apache][:keep_alive] %>
 # during a persistent connection. Set to 0 to allow an unlimited amount.
 # We recommend you leave this number high, for maximum performance.
 #
-MaxKeepAliveRequests 100#TODO
+MaxKeepAliveRequests <%= configuration[:apache][:max_keep_alive_requests] %>
 
 #
 # KeepAliveTimeout: Number of seconds to wait for the next request from the
 # same client on the same connection.
 #
-KeepAliveTimeout 15#TODO
+KeepAliveTimeout <%= configuration[:apache][:keep_alive_timeout] %>
 
 ##
 ## Server-Pool Size Regulation (MPM specific)
@@ -116,8 +116,8 @@ KeepAliveTimeout 15#TODO
 # MaxRequestsPerChild: maximum number of requests a server process serves
 <IfModule mpm_worker_module>
     StartServers          2
-    MaxClients          150#TODO
-    #ServerLimit # TODO
+    MaxClients           <%= configuration[:apache][:max_clients] %>
+    ServerLimit          <%= configuration[:apache][:server_limit] %>
     MinSpareThreads      25
     MaxSpareThreads      75 
     ThreadsPerChild      25

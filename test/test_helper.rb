@@ -47,13 +47,25 @@ Test::Unit::TestCase.class_eval do
     assert_block "Wasn't able to find a value for <#{directive}>" do
       if contents =~ /^\s*#{directive}\s+(\w+)[^#\n]*/
         assert_block "Expected <#{value}> for <#{directive}>, but got <#{$1}>" do
-          $1 == value
+          $1 == value.to_s
         end
         true
       else
         false
       end
     end
+  end
+
+  def in_apache_if_module(contents, some_module)
+    assert_block "Doesn't contain <IfModule #{some_module}>" do
+      if contents =~ /<IfModule #{some_module}>(.*)<\/IfModule>/m
+        yield $1 if block_given?
+        true
+      else
+        false
+      end
+    end
+    
   end
 
 end
