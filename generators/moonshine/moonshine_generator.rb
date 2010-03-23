@@ -5,7 +5,8 @@ class MoonshineGenerator < Rails::Generator::Base
 
   default_options :user => 'rails',
                   :domain => 'yourapp.com',
-                  :ruby => 'ree'
+                  :ruby => 'ree',
+                  :multistage => false
 
   def initialize(runtime_args, runtime_options = {})
     name = if runtime_args.first && runtime_args.first !~ /^--/
@@ -43,10 +44,21 @@ class MoonshineGenerator < Rails::Generator::Base
       m.template  'moonshine.rb', "app/manifests/#{file_name}.rb"
       m.directory 'app/manifests/templates'
       m.template  'readme.templates', 'app/manifests/templates/README'
+
       m.directory 'config'
       m.template  'moonshine.yml', 'config/moonshine.yml'
       m.template  'gems.yml', 'config/gems.yml', :assigns => { :gems => gems }
+
       m.template  'deploy.rb', 'config/deploy.rb'
+      if options[:multistage]
+        m.directory 'config/deploy'
+        m.template 'multistage-deploy.rb', 'config/deploy/staging.rb', :assigns => { :server => "staging.#{domain}" }
+        m.template 'multistage-deploy.rb', 'config/deploy/production.rb', :assigns => { :server => domain }
+        m.directory 'config/moonshine'
+
+        m.template 'multistage-moonshine.yml', 'config/moonshine/staging.yml', :assigns => { :server => "staging.#{domain}", :stage => 'staging' }
+        m.template 'multistage-moonshine.yml', 'config/moonshine/production.yml', :assigns => { :server => domain, :stage => 'production' }
+      end
     end
     
     intro = <<-INTRO
@@ -97,6 +109,8 @@ define the server 'stack', cron jobs, mail aliases, configuration files
              "Domain name of your application") { |domain| options[:domain] = domain }
       opt.on("--repository REPOSITORY",
              "git or subversion repository to deploy from") { |repository| options[:repository] = repository }
+      opt.on('--multistage',
+              "setup multistage deployment environment") { options[:multistage] = true }
       opt.on("--ruby RUBY",
              "Ruby version to install. Currently supports: mri, ree (default), ree187, src187") { |ruby| options[:ruby] = ruby }
       

@@ -7,6 +7,7 @@ class MoonshineGenerator < Rails::Generators::Base
   class_option :domain, :default => 'yourapp.com', :desc => 'Domain name of your application', :type => :string
   class_option :repository, :default => 'git@github.com:username/your_app_name.git', :desc => 'git or subversion repository to deploy from', :type => :string
   class_option :ruby, :default => 'ree187', :desc => 'Ruby version to install. Currently supports: mri, ree, ree187, src187', :type => :string
+  class_option :multistage, :default => false, :desc => 'setup multistage deployment environment', :type => :boolean
 
   def self.source_root
     @_moonshine_source_root ||= Pathname.new(__FILE__).dirname.join('..', '..', '..', 'generators', 'moonshine', 'templates')
@@ -18,6 +19,15 @@ class MoonshineGenerator < Rails::Generators::Base
     template "moonshine.rb", "app/manifests/#{file_name}.rb"
     template "moonshine.yml", "config/moonshine.yml"
     template "deploy.rb", "config/deploy.rb"
+
+    if options[:multistage]
+      template 'multistage-deploy.rb', 'config/deploy/staging.rb', :assigns => { :server => "staging.#{domain}" }
+      template 'multistage-deploy.rb', 'config/deploy/production.rb', :assigns => { :server => domain }
+
+      template 'multistage-moonshine.yml', 'config/moonshine/staging.yml', :assigns => { :server => "staging.#{domain}", :stage => 'staging' }
+      template 'multistage-moonshine.yml', 'config/moonshine/production.yml', :assigns => { :server => domain, :stage => 'production' }
+    end
+
     
     intro = <<-INTRO
     
