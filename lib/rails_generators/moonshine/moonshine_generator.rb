@@ -21,11 +21,11 @@ class MoonshineGenerator < Rails::Generators::Base
     template "deploy.rb", "config/deploy.rb"
 
     if options[:multistage]
-      template 'multistage-deploy.rb', 'config/deploy/staging.rb', :assigns => { :server => "staging.#{domain}" }
-      template 'multistage-deploy.rb', 'config/deploy/production.rb', :assigns => { :server => domain }
+      template 'staging-deploy.rb', 'config/deploy/staging.rb'
+      template 'production-deploy.rb', 'config/deploy/production.rb'
 
-      template 'multistage-moonshine.yml', 'config/moonshine/staging.yml', :assigns => { :server => "staging.#{domain}", :stage => 'staging' }
-      template 'multistage-moonshine.yml', 'config/moonshine/production.yml', :assigns => { :server => domain, :stage => 'production' }
+      template 'staging-moonshine.yml', 'config/moonshine/staging.yml'
+      template 'production-moonshine.yml', 'config/moonshine/production.yml'
     end
 
     
@@ -75,6 +75,19 @@ protected
 
   def application
     @application ||= File.basename(RAILS_ROOT)
+  end
+
+  
+  def staging_domain
+    "staging.#{options[:domain]}"
+  end
+
+  def server
+    options[:server] || options[:domain]
+  end
+
+  def staging_server
+    "staging.#{server}"
   end
   
 end

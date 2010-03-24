@@ -52,12 +52,12 @@ class MoonshineGenerator < Rails::Generator::Base
       m.template  'deploy.rb', 'config/deploy.rb'
       if options[:multistage]
         m.directory 'config/deploy'
-        m.template 'multistage-deploy.rb', 'config/deploy/staging.rb', :assigns => { :server => "staging.#{domain}" }
-        m.template 'multistage-deploy.rb', 'config/deploy/production.rb', :assigns => { :server => domain }
-        m.directory 'config/moonshine'
+        m.template 'staging-deploy.rb', 'config/deploy/staging.rb'
+        m.template 'production-deploy.rb', 'config/deploy/production.rb'
 
-        m.template 'multistage-moonshine.yml', 'config/moonshine/staging.yml', :assigns => { :server => "staging.#{domain}", :stage => 'staging' }
-        m.template 'multistage-moonshine.yml', 'config/moonshine/production.yml', :assigns => { :server => domain, :stage => 'production' }
+        m.directory 'config/moonshine'
+        m.template 'staging-moonshine.yml', 'config/moonshine/staging.yml'
+        m.template 'production-moonshine.yml', 'config/moonshine/production.yml'
       end
     end
     
@@ -98,6 +98,18 @@ define the server 'stack', cron jobs, mail aliases, configuration files
     options[:domain]
   end
 
+  def staging_domain
+    "staging.#{options[:domain]}"
+  end
+
+  def server
+    options[:server] || options[:domain]
+  end
+
+  def staging_server
+    "staging.#{server}"
+  end
+
   protected
 
     def add_options!(opt)
@@ -109,6 +121,8 @@ define the server 'stack', cron jobs, mail aliases, configuration files
              "Domain name of your application") { |domain| options[:domain] = domain }
       opt.on("--repository REPOSITORY",
              "git or subversion repository to deploy from") { |repository| options[:repository] = repository }
+      opt.on('--server SERVER',
+              "server") { |server| options[:server] = server }
       opt.on('--multistage',
               "setup multistage deployment environment") { options[:multistage] = true }
       opt.on("--ruby RUBY",
