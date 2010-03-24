@@ -26,6 +26,8 @@ class MoonshineGenerator < Rails::Generators::Base
 
       template 'staging-moonshine.yml', 'config/moonshine/staging.yml'
       template 'production-moonshine.yml', 'config/moonshine/production.yml'
+
+      template 'staging-environment.rb', 'config/environments/staging.rb'
     end
 
     

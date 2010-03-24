@@ -58,6 +58,9 @@ class MoonshineGenerator < Rails::Generator::Base
         m.directory 'config/moonshine'
         m.template 'staging-moonshine.yml', 'config/moonshine/staging.yml'
         m.template 'production-moonshine.yml', 'config/moonshine/production.yml'
+
+        m.directory 'config/environments/'
+        m.template 'staging-environment.rb', 'config/environments/staging.rb'
       end
     end
     
